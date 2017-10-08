@@ -36,7 +36,7 @@ object Set1 {
   def hexToChar(hex: Int): Char = {
     (hex match {
       case b if b < 10 => b + '0'
-      case b => b + 'a' + 10
+      case b => b + 'a' - 10
     })
     .toChar
   }
@@ -51,8 +51,8 @@ object Set1 {
 
     val padded = padLength match {
       case 0 => hex
-      case 1 => hex ++ Array(0x00).map(_.toByte)
-      case 2 => hex ++ Array(0x00, 0x00).map(_.toByte)
+      case 1 => hex ++ Array(0x00, 0x00).map(_.toByte)
+      case 2 => hex ++ Array(0x00).map(_.toByte)
     }
 
     padded
@@ -95,6 +95,8 @@ object Set1 {
   def findSingleByteKey(hex: Array[Byte]): (Byte, Float) = {
     new SingleByteXorDecryptor(hex).findKey()
   }
+
+  /* Challenge 4 */
 
   def detectSingleByteXOR(sample: Array[Array[Byte]]): (Byte, Float, Array[Byte]) = {
     val (key, score, in) = sample
@@ -153,5 +155,14 @@ object Set1 {
         .map(SingleByteXorDecryptor.CharFreqTable.getOrElse(_, 0.00f))
         .sum
     }
+  }
+
+  /* Challenge 5 */
+
+  def repeatingXOR(bytes: Array[Byte], key: Array[Byte]): Array[Byte] = {
+    bytes
+      .grouped(key.length)
+      .flatMap(xor(_, key))
+      .toArray
   }
 }
