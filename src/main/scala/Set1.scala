@@ -1,5 +1,3 @@
-import java.nio.charset.Charset
-
 object Set1 {
 
   /* Hex */
@@ -136,7 +134,7 @@ object Set1 {
       )
     }
 
-    def findKey(): (Byte, Float )= {
+    def findKey(): (Byte, Float) = {
       val (bestKey, score) =
         (0x00 to 0xFF)
         .map(key => (key, xor(hex, key.toByte)))
