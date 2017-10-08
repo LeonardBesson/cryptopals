@@ -94,8 +94,23 @@ object Set1 {
 
   /* Challenge 3 */
 
-  def findSingleByteKey(hex: Array[Byte]): Byte = {
+  def findSingleByteKey(hex: Array[Byte]): (Byte, Float) = {
     new SingleByteXorDecryptor(hex).findKey()
+  }
+
+  def detectSingleByteXOR(sample: Array[Array[Byte]]): (Byte, Float, Array[Byte]) = {
+    val (key, score, in) = sample
+      .map { in =>
+        val (key, score) = findSingleByteKey(in)
+
+        (key, score, in)
+      }
+      .maxBy(_._2)
+
+    println(s"\nFound most probable single byte encryption: " +
+      s"Key=${key.toChar}, score=$score, Message: ${new String(xor(in, key))}")
+
+    (key, score, in)
   }
 
   private class SingleByteXorDecryptor(
@@ -121,17 +136,17 @@ object Set1 {
       )
     }
 
-    def findKey(): Byte = {
+    def findKey(): (Byte, Float )= {
       val (bestKey, score) =
         (0x00 to 0xFF)
         .map(key => (key, xor(hex, key.toByte)))
         .map { case (key, reversed) => (key.toByte, getCharFrequencyScore(reversed)) }
         .maxBy(_._2)
 
-      println(s"Found best key=${bestKey.toChar}, " +
+      println(s"\nFound best key=${bestKey.toChar}, " +
         s"score=$score, Message: ${new String(xor(hex, bestKey))}")
 
-      bestKey
+      (bestKey, score)
     }
 
     private def getCharFrequencyScore(bytes: Array[Byte]): Float = {

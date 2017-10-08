@@ -1,5 +1,7 @@
 import org.scalatest.{FunSuite, MustMatchers}
 
+import scala.io.Source
+
 class TestSet1
   extends FunSuite
     with MustMatchers
@@ -21,9 +23,21 @@ class TestSet1
   test("Challenge 3") {
     val in = Set1.decodeHex("1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736")
 
-    val key = Set1.findSingleByteKey(in)
+    val (key, _) = Set1.findSingleByteKey(in)
 
     key.toChar mustEqual 'X'
     new String(Set1.xor(in, key)) mustEqual "Cooking MC's like a pound of bacon"
+  }
+
+  test("Challenge 4") {
+    val strings = Source.fromURL("https://cryptopals.com/static/challenge-data/4.txt")
+      .getLines()
+      .map(Set1.decodeHex)
+      .toArray
+
+    val (key, score, bytes) = Set1.detectSingleByteXOR(strings)
+
+    key.toChar mustEqual '5'
+    new String(Set1.xor(bytes, key)) mustEqual "Now that the party is jumping\n"
   }
 }
