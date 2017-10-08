@@ -1,3 +1,5 @@
+import java.nio.charset.Charset
+
 object Set1 {
 
   /* Hex */
@@ -85,5 +87,58 @@ object Set1 {
     bytes
       .zip(key)
       .map { case (char, keyChar) => (char ^ keyChar).toByte }
+  }
+
+  def xor(bytes: Array[Byte], key: Byte): Array[Byte] = bytes.map(b => (b ^ key).toByte)
+
+
+  /* Challenge 3 */
+
+  def findSingleByteKey(hex: Array[Byte]): Byte = {
+    new SingleByteXorDecryptor(hex).findKey()
+  }
+
+  private class SingleByteXorDecryptor(
+    val hex: Array[Byte]
+  ) {
+
+    object SingleByteXorDecryptor {
+      /* https://www.math.cornell.edu/~mec/2003-2004/cryptography/subs/frequencies.html */
+      val CharFreqTable: Map[Char, Float] = Map(
+        'E' -> 12.02f,
+        'T' ->  9.10f,
+        'A' ->  8.12f,
+        'O' ->  7.68f,
+        'I' ->  7.31f,
+        'N' ->  6.95f,
+        ' ' ->  6.55f,
+        'S' ->  6.28f,
+        'R' ->  6.02f,
+        'H' ->  5.92f,
+        'D' ->  4.32f,
+        'L' ->  3.98f,
+        'U' ->  2.88f,
+      )
+    }
+
+    def findKey(): Byte = {
+      val (bestKey, score) =
+        (0x00 to 0xFF)
+        .map(key => (key, xor(hex, key.toByte)))
+        .map { case (key, reversed) => (key.toByte, getCharFrequencyScore(reversed)) }
+        .maxBy(_._2)
+
+      println(s"Found best key=${bestKey.toChar}, " +
+        s"score=$score, Message: ${new String(xor(hex, bestKey))}")
+
+      bestKey
+    }
+
+    private def getCharFrequencyScore(bytes: Array[Byte]): Float = {
+      new String(bytes)
+        .toUpperCase
+        .map(SingleByteXorDecryptor.CharFreqTable.getOrElse(_, 0.00f))
+        .sum
+    }
   }
 }

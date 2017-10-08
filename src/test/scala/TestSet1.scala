@@ -17,4 +17,13 @@ class TestSet1
 
     Set1.xor(in, key) mustEqual Set1.decodeHex("746865206b696420646f6e277420706c6179")
   }
+
+  test("Challenge 3") {
+    val in = Set1.decodeHex("1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736")
+
+    val key = Set1.findSingleByteKey(in)
+
+    key.toChar mustEqual 'X'
+    new String(Set1.xor(in, key)) mustEqual "Cooking MC's like a pound of bacon"
+  }
 }
