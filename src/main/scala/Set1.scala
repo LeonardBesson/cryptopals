@@ -1,3 +1,6 @@
+import javax.crypto.Cipher
+import javax.crypto.spec.SecretKeySpec
+
 object Set1 {
 
   /* Hex */
@@ -262,5 +265,30 @@ object Set1 {
           (key, score, message)
         }
         .maxBy(_._2)
+  }
+
+  /* Challenge 7 */
+
+  def decryptAESECB(bytes: Array[Byte], key: Array[Byte]): Array[Byte] = {
+    val cipher = Cipher.getInstance("AES/ECB/PKCS5Padding")
+    val secretKeySpec = new SecretKeySpec(key, "AES")
+
+    cipher.init(Cipher.DECRYPT_MODE, secretKeySpec)
+    cipher.doFinal(bytes)
+  }
+
+  /* Challenge 8 */
+
+  def detectAESECB(cipherTexts: Array[Array[Byte]]): Array[Byte] = {
+    cipherTexts
+      .map(cipherText => (cipherText, cipherText.grouped(16)))
+      .map { case (cipherText, blocks) =>
+
+        val score = blocks.map(block => blocks.count(block sameElements _)).sum
+
+        (cipherText, score)
+      }
+      .maxBy(_._2)
+      ._1
   }
 }

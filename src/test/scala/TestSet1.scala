@@ -58,4 +58,21 @@ class TestSet1
 
     new String(key) mustEqual "Terminator X: Bring the noise"
   }
+
+  test("Challenge 7") {
+    val in = Source.fromURL("https://cryptopals.com/static/challenge-data/7.txt")
+      .getLines()
+      .mkString
+
+    val out = Set1.decryptAESECB(Set1.base64ToHex(in), "YELLOW SUBMARINE".getBytes)
+  }
+
+  test("Challenge 8") {
+    val in = Source.fromURL("https://cryptopals.com/static/challenge-data/8.txt")
+      .getLines()
+      .map(Set1.decodeHex)
+      .toArray
+
+    val ECBEncrypted = Set1.detectAESECB(in)
+  }
 }
